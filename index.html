@@ -236,6 +236,153 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://eliteme.github.io/2017/01/05/POP3收取邮件/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="eliteme">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.gif">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="elitemeBlog">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="elitemeBlog" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/01/05/POP3收取邮件/" itemprop="url">
+                  POP3收取邮件
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-05T18:16:53+08:00">
+                2017-01-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="POP3收取邮件"><a href="#POP3收取邮件" class="headerlink" title="POP3收取邮件"></a>POP3收取邮件</h3><p>SMTP用于发送邮件，如果要收取邮件呢？</p>
+<p>收取邮件就是编写一个<strong>MUA</strong>作为客户端，从<strong>MDA</strong>把邮件获取到用户的电脑或者手机上。收取邮件最常用的协议是<strong>POP</strong>协议，目前版本号是3，俗称POP3。</p>
+<p>Python内置一个<code>poplib</code>模块，实现了POP3协议，可以直接用来收邮件。</p>
+<p>注意到<strong>POP3</strong>协议收取的不是一个已经可以阅读的邮件本身，而是邮件的原始文本，这和<strong>SMTP</strong>协议很像，<strong>SMTP</strong>发送的也是经过编码后的一大段文本。</p>
+<p>要把<strong>POP3</strong>收取的文本变成可以阅读的邮件，还需要用<code>email</code>模块提供的各种类来解析原始文本，变成可阅读的邮件对象。</p>
+<p>所以，收取邮件分两步：</p>
+<p>第一步：用<code>poplib</code>把邮件的原始文本下载到本地；</p>
+<p>第二部：用<code>email</code>解析原始文本，还原为邮件对象。</p>
+<h4 id="通过POP3下载邮件"><a href="#通过POP3下载邮件" class="headerlink" title="通过POP3下载邮件"></a>通过POP3下载邮件</h4><p>POP3协议本身很简单，以下面的代码为例，我们来获取最新的一封邮件内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> poplib</div><div class="line"></div><div class="line"><span class="comment"># 输入邮件地址, 口令和POP3服务器地址:</span></div><div class="line">email = raw_input(<span class="string">'Email: '</span>)</div><div class="line">password = raw_input(<span class="string">'Password: '</span>)</div><div class="line">pop3_server = raw_input(<span class="string">'POP3 server: '</span>)</div><div class="line"></div><div class="line"><span class="comment"># 连接到POP3服务器:</span></div><div class="line">server = poplib.POP3(pop3_server)</div><div class="line"><span class="comment"># 可以打开或关闭调试信息:</span></div><div class="line"><span class="comment"># server.set_debuglevel(1)</span></div><div class="line"><span class="comment"># 可选:打印POP3服务器的欢迎文字:</span></div><div class="line">print(server.getwelcome())</div><div class="line"><span class="comment"># 身份认证:</span></div><div class="line">server.user(email)</div><div class="line">server.pass_(password)</div><div class="line"><span class="comment"># stat()返回邮件数量和占用空间:</span></div><div class="line">print(<span class="string">'Messages: %s. Size: %s'</span> % server.stat())</div><div class="line"><span class="comment"># list()返回所有邮件的编号:</span></div><div class="line">resp, mails, octets = server.list()</div><div class="line"><span class="comment"># 可以查看返回的列表类似['1 82923', '2 2184', ...]</span></div><div class="line">print(mails)</div><div class="line"><span class="comment"># 获取最新一封邮件, 注意索引号从1开始:</span></div><div class="line">index = len(mails)</div><div class="line">resp, lines, octets = server.retr(index)</div><div class="line"><span class="comment"># lines存储了邮件的原始文本的每一行,</span></div><div class="line"><span class="comment"># 可以获得整个邮件的原始文本:</span></div><div class="line">msg_content = <span class="string">'\r\n'</span>.join(lines)</div><div class="line"><span class="comment"># 稍后解析出邮件:</span></div><div class="line">msg = Parser().parsestr(msg_content)</div><div class="line"><span class="comment"># 可以根据邮件索引号直接从服务器删除邮件:</span></div><div class="line"><span class="comment"># server.dele(index)</span></div><div class="line"><span class="comment"># 关闭连接:</span></div><div class="line">server.quit()</div></pre></td></tr></table></figure>
+<p>用<strong>POP3</strong>获取邮件其实很简单，要获取所有邮件，只需要循环使用retr()把每一封邮件内容拿到即可。真正麻烦的是把邮件的原始内容解析为可以阅读的邮件对象。</p>
+<h4 id="解析邮件"><a href="#解析邮件" class="headerlink" title="解析邮件"></a>解析邮件</h4><p>解析邮件的过程和上一节构造邮件正好相反，因此，先导入必要的模块：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> email</div><div class="line"><span class="keyword">from</span> email.parser <span class="keyword">import</span> Parser</div><div class="line"><span class="keyword">from</span> email.header <span class="keyword">import</span> decode_header</div><div class="line"><span class="keyword">from</span> email.utils <span class="keyword">import</span> parseaddr</div></pre></td></tr></table></figure>
+<p>只需要一行代码就可以把邮件内容解析为<code>Message</code>对象：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">msg = Parser().parsestr(msg_content)</div></pre></td></tr></table></figure>
+<p>但是这个<code>Message</code>对象本身可能是一个<code>MIMEMultipart</code>对象，即包含嵌套的其他<code>MIMEBase</code>对象，嵌套可能还不止一层。</p>
+<p>所以我们要递归地打印出<code>Message</code>对象的层次结构：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># indent用于缩进显示:</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_info</span><span class="params">(msg, indent=<span class="number">0</span>)</span>:</span></div><div class="line">    <span class="keyword">if</span> indent == <span class="number">0</span>:</div><div class="line">        <span class="comment"># 邮件的From, To, Subject存在于根对象上:</span></div><div class="line">        <span class="keyword">for</span> header <span class="keyword">in</span> [<span class="string">'From'</span>, <span class="string">'To'</span>, <span class="string">'Subject'</span>]:</div><div class="line">            value = msg.get(header, <span class="string">''</span>)</div><div class="line">            <span class="keyword">if</span> value:</div><div class="line">                <span class="keyword">if</span> header==<span class="string">'Subject'</span>:</div><div class="line">                    <span class="comment"># 需要解码Subject字符串:</span></div><div class="line">                    value = decode_str(value)</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="comment"># 需要解码Email地址:</span></div><div class="line">                    hdr, addr = parseaddr(value)</div><div class="line">                    name = decode_str(hdr)</div><div class="line">                    value = <span class="string">u'%s &lt;%s&gt;'</span> % (name, addr)</div><div class="line">            print(<span class="string">'%s%s: %s'</span> % (<span class="string">'  '</span> * indent, header, value))</div><div class="line">    <span class="keyword">if</span> (msg.is_multipart()):</div><div class="line">        <span class="comment"># 如果邮件对象是一个MIMEMultipart,</span></div><div class="line">        <span class="comment"># get_payload()返回list，包含所有的子对象:</span></div><div class="line">        parts = msg.get_payload()</div><div class="line">        <span class="keyword">for</span> n, part <span class="keyword">in</span> enumerate(parts):</div><div class="line">            print(<span class="string">'%spart %s'</span> % (<span class="string">'  '</span> * indent, n))</div><div class="line">            print(<span class="string">'%s--------------------'</span> % (<span class="string">'  '</span> * indent))</div><div class="line">            <span class="comment"># 递归打印每一个子对象:</span></div><div class="line">            print_info(part, indent + <span class="number">1</span>)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="comment"># 邮件对象不是一个MIMEMultipart,</span></div><div class="line">        <span class="comment"># 就根据content_type判断:</span></div><div class="line">        content_type = msg.get_content_type()</div><div class="line">        <span class="keyword">if</span> content_type==<span class="string">'text/plain'</span> <span class="keyword">or</span> content_type==<span class="string">'text/html'</span>:</div><div class="line">            <span class="comment"># 纯文本或HTML内容:</span></div><div class="line">            content = msg.get_payload(decode=<span class="keyword">True</span>)</div><div class="line">            <span class="comment"># 要检测文本编码:</span></div><div class="line">            charset = guess_charset(msg)</div><div class="line">            <span class="keyword">if</span> charset:</div><div class="line">                content = content.decode(charset)</div><div class="line">            print(<span class="string">'%sText: %s'</span> % (<span class="string">'  '</span> * indent, content + <span class="string">'...'</span>))</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="comment"># 不是文本,作为附件处理:</span></div><div class="line">            print(<span class="string">'%sAttachment: %s'</span> % (<span class="string">'  '</span> * indent, content_type)</div></pre></td></tr></table></figure>
+<p>邮件的<strong>Subject</strong>或者<strong>Email</strong>中包含的名字都是经过编码后的str，要正常显示，就必须<em>decode</em>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">decode_str</span><span class="params">(s)</span>:</span></div><div class="line">    value, charset = decode_header(s)[<span class="number">0</span>]</div><div class="line">    <span class="keyword">if</span> charset:</div><div class="line">        value = value.decode(charset)</div><div class="line">    <span class="keyword">return</span> value</div></pre></td></tr></table></figure>
+<p><code>decode_header()</code>返回一个list，因为像<code>Cc</code>、<code>Bcc</code>这样的字段可能包含多个邮件地址，所以解析出来的会有多个元素。上面的代码我们偷了个懒，只取了第一个元素。</p>
+<p>文本邮件的内容也是str，还需要检测编码，否则，非UTF-8编码的邮件都无法正常显示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">guess_charset</span><span class="params">(msg)</span>:</span></div><div class="line">    <span class="comment"># 先从msg对象获取编码:</span></div><div class="line">    charset = msg.get_charset()</div><div class="line">    <span class="keyword">if</span> charset <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">        <span class="comment"># 如果获取不到，再从Content-Type字段获取:</span></div><div class="line">        content_type = msg.get(<span class="string">'Content-Type'</span>, <span class="string">''</span>).lower()</div><div class="line">        pos = content_type.find(<span class="string">'charset='</span>)</div><div class="line">        <span class="keyword">if</span> pos &gt;= <span class="number">0</span>:</div><div class="line">            charset = content_type[pos + <span class="number">8</span>:].strip()</div><div class="line">    <span class="keyword">return</span> charset</div></pre></td></tr></table></figure>
+<p>把上面的代码整理好，我们就可以来试试收取一封邮件。先往自己的邮箱发一封邮件，然后用浏览器登录邮箱，看看邮件收到没，如果收到了，我们就来用Python程序把它收到本地：</p>
+<p><img src="http://www.liaoxuefeng.com/files/attachments/0014082468380388be2ec29f6be43f5800fd84bd80fa446000" alt="Alt text"></p>
+<p>运行程序，结果如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">+OK Welcome to coremail Mail Pop3 Server (163coms[...])</div><div class="line">Messages: 126. Size: 27228317</div><div class="line"></div><div class="line">From: Test &lt;xxxxxx@qq.com&gt;</div><div class="line">To: Python爱好者 &lt;xxxxxx@163.com&gt;</div><div class="line">Subject: 用POP3收取邮件</div><div class="line">part 0</div><div class="line">--------------------</div><div class="line">  part 0</div><div class="line">  --------------------</div><div class="line">    Text: Python可以使用POP3收取邮件……...</div><div class="line">  part 1</div><div class="line">  --------------------</div><div class="line">    Text: Python可以&lt;a href="..."&gt;使用POP3&lt;/a&gt;收取邮件……...</div><div class="line">part 1</div><div class="line">--------------------</div><div class="line">  Attachment: application/octet-stream</div></pre></td></tr></table></figure>
+<p>我们从打印的结构可以看出，这封邮件是一个<code>MIMEMultipart</code>，它包含两部分：第一部分又是一个<code>MIMEMultipart</code>，第二部分是一个附件。而内嵌的<code>MIMEMultipart</code>是一个<code>alternative</code>类型，它包含一个纯文本格式的<code>MIMEText</code>和一个<code>HTML</code>格式的<code>MIMEText</code>。</p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>用Python的<code>poplib</code>模块收取邮件分两步：第一步是用<strong>POP3</strong>协议把邮件获取到本地，第二步是用<code>email</code>模块把原始邮件解析为<code>Message</code>对象，然后，用适当的形式把邮件内容展示给用户即可。</p>
+<p>源码参考：</p>
+<p><a href="https://github.com/michaelliao/learn-python/tree/master/email" target="_blank" rel="external">https://github.com/michaelliao/learn-python/tree/master/email</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://eliteme.github.io/2017/01/05/SMTP发送邮件/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -799,7 +946,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
